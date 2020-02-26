@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<feed  version="1.0" hasPendingRequests="false" >
+  <company></company>
+  <status>200</status>
+  <errmsg>OK</errmsg>
+  <interval>0</interval>
+    <entry type="predatasource">
+        <version>1582737479</version>
+        <name>RemotePingWindowsADList</name>
+        <displayedas>Remote Ping</displayedas>
+        <description>Executes &#39;ping&#39; from the command line of one host to destinations defined in ping.targets by using PowerShell to remotely execute the command on the device.</description>
+        <collector>script</collector>
+        <hasMultiInstances>true</hasMultiInstances>
+        <schedule>120</schedule>
+        <appliesTo>isWindows() &#38;&#38; ping.targets</appliesTo>
+        <wildcardauto>true</wildcardauto>
+        <wildcardpersist>false</wildcardpersist>
+        <wildcardlinuxscript>ad_script</wildcardlinuxscript>
+        <wildcardlinuxcmdline>type=&#34;embeded&#34; </wildcardlinuxcmdline>
+        <wildcardwinscript>ad_script</wildcardwinscript>
+        <wildcardwincmdline>type=&#34;embeded&#34; </wildcardwincmdline>
+        <wildcardgroovyscript>targets = hostProps.get(&#34;ping.targets&#34;)
+try {
+    targets.tokenize(&#34;, &#34;).each{
+        target = it.tokenize(&#34;:&#34;)
+        println(&#34;${target[1]}##${target[0]}&#34;)
+    }
+    return 0
+}
+catch (Exception e){return 1}
+</wildcardgroovyscript>
+        <wildcardschedule>0</wildcardschedule>
+        <wildcarddisable>false</wildcarddisable>
+        <wildcarddeleteinactive>false</wildcarddeleteinactive>
+        <agdmethod>none</agdmethod>
+        <agdparams></agdparams>
+        <group>_WeenigWare</group>
+        <tags></tags>
+        <technology>Host needs specified property:
+ping.targets = description1:ip_address1,description2:ip_address2
+
+Example:
+ping.targets = google:8.8.8.8,gateway:192.168.1.1,server:192.168.1.100
+
+author:  Stuart Weenig based on work by Chris Morgan</technology>
+        <adlist><![CDATA[{"agdmethod":"none","method":"ad_script","agdparams":"","id":0,"filters":[],"params":{"type":"embeded","groovyscript":"targets = hostProps.get(\"ping.targets\")\ntry {\n    targets.tokenize(\", \").each{\n        target = it.tokenize(\":\")\n        println(\"${target[1]}##${target[0]}\")\n    }\n    return 0\n}\ncatch (Exception e){return 1}\n"}}]]></adlist>
+        <schemaVersion>2</schemaVersion>
+        <dataSourceType>1</dataSourceType>
+        <attributes>
+        <attribute>
+            <name>scripttype</name>
+            <value>powerShell</value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>scriptgroovy</name>
+            <value>#Requires -Version 4
+Clear-Host
+Remove-Variable * -ErrorAction SilentlyContinue
+
+$hostname = &#39;##SYSTEM.SYSNAME##&#39;
+$wildvalue = &#39;##WILDVALUE##&#39;
+$wmi_user = &#39;##wmi.user##&#39;
+$wmi_pass = &#39;##wmi.pass##&#39;
+$collectorName = hostname
+
+# Insert additional variables here
+
+# If the hostname is an IP address query DNS for the FQDN
+if ($hostname -match &#34;\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b&#34;) {
+    $hostname = [System.Net.Dns]::GetHostbyAddress($hostname).HostName
+}
+
+
+## This script block should contain all code that you want to execute remotely on the target host.
+$scriptBlock = {
+    $wildvalue = &#39;##WILDVALUE##&#39;
+    $command = ping $wildvalue
+    foreach ($line in $command) {
+#        Write-Host $line
+        # $line = $line
+        if ($line -like &#39;*Packets*&#39;) {
+            
+            $line = $line -replace &#34;\D&#34;,&#34;&#34;
+            $line = $line.substring(3)
+            
+            Write-Host &#34;ping_loss_percent=&#34;$line
+        } elseif ($line -like &#39;*Minimum*&#39;) {
+            
+            $line = $line -replace &#34;\D&#34;,&#34;&#34;
+            $line = $line.substring(2)
+            
+            Write-Host &#34;avg_response_time=&#34;$line
+        }
+    }
+}
+#------------------------------------------------------------------------------------------------------------
+
+try {
+    #-----Determin the type of query to make-----
+    # check to see if this is monitoring the localhost collector, as we will not need to authenticate.
+    if ($hostname -like $collectorName) {
+        $response = Invoke-Command -ScriptBlock $scriptBlock
+    }
+    # are wmi user/pass set -- e.g. are these device props either not substiuted or blank
+    elseif (([string]::IsNullOrWhiteSpace($wmi_user) -and [string]::IsNullOrWhiteSpace($wmi_pass)) -or (($wmi_user -like &#39;*WMI.USER*&#39;) -and ($wmi_pass -like &#39;*WMI.PASS*&#39;))) {
+        # no
+        $response = Invoke-Command -ComputerName $hostname -ScriptBlock $scriptBlock
+    } else {
+        # yes. convert user/password into a credential string
+        $remote_pass = ConvertTo-SecureString -String $wmi_pass -AsPlainText -Force;
+        $remote_credential = New-Object -typename System.Management.Automation.PSCredential -argumentlist $wmi_user, $remote_pass;
+        $response = Invoke-Command -ComputerName $hostname -Credential $remote_credential -ScriptBlock $scriptBlock
+    }
+    exit 0
+} catch {
+    # exit code of non 0 will mean the script failed and not overwrite the instances that have already been found
+    throw $Error[0].Exception
+    exit 1
+}</value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>windowsscript</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>linuxscript</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>windowscmdline</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>linuxcmdline</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        </attributes>
+        <datapoints>
+        <datapoint>
+            <name>avg_response_time</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>avg_response_time</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <description>Average response times of ping transmissions</description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>ping_loss_percent</name>
+            <dataType>7</dataType>
+            <type>2</type>
+            <postprocessormethod>namevalue</postprocessormethod>
+            <postprocessorparam>ping_loss_percent</postprocessorparam>
+            <usevalue>output</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <description>% of lost packets in ping transmission</description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        <datapoint>
+            <name>script_execution_time_ms</name>
+            <dataType>4</dataType>
+            <type>2</type>
+            <postprocessormethod>none</postprocessormethod>
+            <postprocessorparam></postprocessorparam>
+            <usevalue>responseTime</usevalue>
+            <alertexpr></alertexpr>
+            <alertmissing>1</alertmissing>
+            <alertsubject></alertsubject>
+            <alertbody></alertbody>
+            <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <description></description>
+            <maxvalue></maxvalue>
+            <minvalue></minvalue>
+            <userparam1></userparam1>
+            <userparam2></userparam2>
+            <userparam3></userparam3>
+            <iscomposite>false</iscomposite>
+            <rpn></rpn>
+            <alertTransitionIval>0</alertTransitionIval>
+            <alertClearTransitionIval>0</alertClearTransitionIval>
+        </datapoint>
+        </datapoints>
+        <graphs>
+        <graph>
+            <name>Average Response Time</name>
+            <title>Average Response Time</title>
+            <verticallabel>ms</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>NaN</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>1</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <graphdatapoints>
+        <graphdatapoint>
+            <name>avg_response_time</name>
+            <datapointname>avg_response_time</datapointname>
+            <cf>1</cf>
+        </graphdatapoint>
+            </graphdatapoints>
+            <graphvirtualdatapoints>
+            </graphvirtualdatapoints>
+            <graphdatas>
+            <graphdata>
+                <type>2</type>
+                <legend>Avg Response Time</legend>
+                <color>silver</color>
+                <datapointname>avg_response_time</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+            </graphdata>
+            </graphdatas>
+        </graph>
+        <graph>
+            <name>Ping Loss Percent</name>
+            <title>Ping Loss Percent</title>
+            <verticallabel>%</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>NaN</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>1</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <graphdatapoints>
+        <graphdatapoint>
+            <name>ping_loss_percent</name>
+            <datapointname>ping_loss_percent</datapointname>
+            <cf>1</cf>
+        </graphdatapoint>
+            </graphdatapoints>
+            <graphvirtualdatapoints>
+            </graphvirtualdatapoints>
+            <graphdatas>
+            <graphdata>
+                <type>2</type>
+                <legend>Ping Loss Percent</legend>
+                <color>red</color>
+                <datapointname>ping_loss_percent</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+            </graphdata>
+            </graphdatas>
+        </graph>
+        </graphs>
+        <overviewgraphs>
+        <overviewgraph>
+            <name>Ping Loss Percent</name>
+            <title>Ping Loss Percent</title>
+            <verticallabel>%</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>NaN</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>10</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <aggregated>false</aggregated>
+            <datapoints>
+        <overviewgraphdatapoint>
+            <name>ping_loss_percent</name>
+            <datapointname>ping_loss_percent</datapointname>
+            <cf>1</cf>
+            <aggregateMethod>sum</aggregateMethod>
+        </overviewgraphdatapoint>
+            </datapoints>
+            <virtualdatapoints>
+            </virtualdatapoints>
+            <lines>
+            <overviewgraphline>
+                <type>1</type>
+                <legend>##INSTANCE##</legend>
+                <datapointname>ping_loss_percent</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+                <color>silver</color>
+            </overviewgraphline>
+            </lines>
+        </overviewgraph>
+        <overviewgraph>
+            <name>Response Times</name>
+            <title>Response Times</title>
+            <verticallabel>ms</verticallabel>
+            <rigid>false</rigid>
+            <maxvalue>NaN</maxvalue>
+            <minvalue>0.0</minvalue>
+            <displayprio>1</displayprio>
+            <timescale>1day</timescale>
+            <base1024>false</base1024>
+            <aggregated>false</aggregated>
+            <datapoints>
+        <overviewgraphdatapoint>
+            <name>avg_response_time</name>
+            <datapointname>avg_response_time</datapointname>
+            <cf>1</cf>
+            <aggregateMethod>sum</aggregateMethod>
+        </overviewgraphdatapoint>
+            </datapoints>
+            <virtualdatapoints>
+            </virtualdatapoints>
+            <lines>
+            <overviewgraphline>
+                <type>1</type>
+                <legend>##INSTANCE##</legend>
+                <datapointname>avg_response_time</datapointname>
+                <isvirtualdatapoint>false</isvirtualdatapoint>
+                <color>silver</color>
+            </overviewgraphline>
+            </lines>
+        </overviewgraph>
+        </overviewgraphs>
+        <scripts>
+        </scripts>
+    </entry>
+</feed>
