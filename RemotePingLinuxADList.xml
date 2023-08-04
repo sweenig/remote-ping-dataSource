@@ -5,15 +5,16 @@
   <errmsg>OK</errmsg>
   <interval>0</interval>
     <entry type="predatasource">
-        <version>1582737455</version>
+        <version>1691168405</version>
         <name>RemotePingLinuxADList</name>
         <displayedas>Remote Ping</displayedas>
         <description>Executes &#39;ping&#39; from the command line of one host to destinations defined in ping.targets by using SSH to remote into the device.</description>
         <collector>script</collector>
         <hasMultiInstances>true</hasMultiInstances>
+        <useWildValueAsUniqueIdentifier>false</useWildValueAsUniqueIdentifier>
         <schedule>60</schedule>
         <appliesTo>(((ssh.user &#38;&#38; ssh.pass) || (ssh.user &#38;&#38; ssh.cert))) &#38;&#38; ping.targets
-/* If this is applying to non-Linux systems, uncomment the following */
+/* If this is applying to non-Linux systems and you want it not to apply to them, uncomment the following */
 /* &#38;&#38; isLinux() */</appliesTo>
         <wildcardauto>true</wildcardauto>
         <wildcardpersist>false</wildcardpersist>
@@ -67,7 +68,7 @@ cert = hostProps.get(&#34;ssh.cert&#34;) ?: &#39;~/.ssh/id_rsa&#39;
 timeout = 15000 // timeout in milliseconds
 
 try {
-    wildvalue = &#34;##WILDVALUE##&#34;
+    def wildvalue = (instanceProps) ? instanceProps.wildvalue.toLowerCase() : &#34;##WILDVALUE##&#34;
     def ssh_cmd = &#34;ping ${wildvalue} -c 2\n&#34;;
     def command_output = getCommandOutput(ssh_cmd).readLines()
     command_output.each { line-&#62; 
@@ -162,10 +163,21 @@ def getCommandOutput(String input_command) {
             <value></value>
             <comment></comment>
         </attribute>
+        <attribute>
+            <name>properties</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
+        <attribute>
+            <name>manualConnections</name>
+            <value></value>
+            <comment></comment>
+        </attribute>
         </attributes>
         <datapoints>
         <datapoint>
             <name>avg_response_time</name>
+            <originId>UBxId-KqTIOTWjjd9iMkyQ</originId>
             <dataType>7</dataType>
             <type>2</type>
             <postprocessormethod>namevalue</postprocessormethod>
@@ -176,9 +188,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description></description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -189,6 +206,7 @@ def getCommandOutput(String input_command) {
         </datapoint>
         <datapoint>
             <name>ping_loss_percent</name>
+            <originId>KKtkSh7HTjezonfK9znRAg</originId>
             <dataType>7</dataType>
             <type>2</type>
             <postprocessormethod>namevalue</postprocessormethod>
@@ -199,9 +217,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description></description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -212,6 +235,7 @@ def getCommandOutput(String input_command) {
         </datapoint>
         <datapoint>
             <name>script_execution_duration_ms</name>
+            <originId>JOajztweSsmj5QJGuEYVOw</originId>
             <dataType>4</dataType>
             <type>2</type>
             <postprocessormethod>none</postprocessormethod>
@@ -222,9 +246,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description></description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -235,6 +264,7 @@ def getCommandOutput(String input_command) {
         </datapoint>
         <datapoint>
             <name>max_response_time</name>
+            <originId>Jz4nG8UAQfaeuRIzwrz5xw</originId>
             <dataType>7</dataType>
             <type>2</type>
             <postprocessormethod>namevalue</postprocessormethod>
@@ -245,9 +275,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description></description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -258,6 +293,7 @@ def getCommandOutput(String input_command) {
         </datapoint>
         <datapoint>
             <name>mdev_response_time</name>
+            <originId>zl6uujE9TNiCBVxGA8wh9A</originId>
             <dataType>7</dataType>
             <type>2</type>
             <postprocessormethod>namevalue</postprocessormethod>
@@ -268,9 +304,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description>Standard deviation of all responses</description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -281,6 +322,7 @@ def getCommandOutput(String input_command) {
         </datapoint>
         <datapoint>
             <name>min_response_time</name>
+            <originId>758GPGgmQsmNKdm6At9NCA</originId>
             <dataType>7</dataType>
             <type>2</type>
             <postprocessormethod>namevalue</postprocessormethod>
@@ -291,9 +333,14 @@ def getCommandOutput(String input_command) {
             <alertsubject></alertsubject>
             <alertbody></alertbody>
             <enableanomalyalertsuppression></enableanomalyalertsuppression>
+            <adadvsettingenabled>false</adadvsettingenabled>
+            <warnadadvsetting></warnadadvsetting>
+            <erroradadvsetting></erroradadvsetting>
+            <criticaladadvsetting></criticaladadvsetting>
             <description></description>
             <maxvalue></maxvalue>
             <minvalue></minvalue>
+            <maxdigits>4</maxdigits>
             <userparam1></userparam1>
             <userparam2></userparam2>
             <userparam3></userparam3>
@@ -307,7 +354,7 @@ def getCommandOutput(String input_command) {
         <graph>
             <name>Average Response Time</name>
             <title>Average Response Time</title>
-            <verticallabel>ms</verticallabel>
+            <originId></originId>            <verticallabel>ms</verticallabel>
             <rigid>false</rigid>
             <maxvalue>NaN</maxvalue>
             <minvalue>0.0</minvalue>
@@ -318,16 +365,19 @@ def getCommandOutput(String input_command) {
         <graphdatapoint>
             <name>avg_response_time</name>
             <datapointname>avg_response_time</datapointname>
+            <originId></originId>
             <cf>1</cf>
         </graphdatapoint>
         <graphdatapoint>
             <name>max_response_time</name>
             <datapointname>max_response_time</datapointname>
+            <originId></originId>
             <cf>1</cf>
         </graphdatapoint>
         <graphdatapoint>
             <name>min_response_time</name>
             <datapointname>min_response_time</datapointname>
+            <originId></originId>
             <cf>1</cf>
         </graphdatapoint>
             </graphdatapoints>
@@ -360,7 +410,7 @@ def getCommandOutput(String input_command) {
         <graph>
             <name>Ping Loss Percent</name>
             <title>Ping Loss Percent</title>
-            <verticallabel>%</verticallabel>
+            <originId></originId>            <verticallabel>%</verticallabel>
             <rigid>false</rigid>
             <maxvalue>NaN</maxvalue>
             <minvalue>0.0</minvalue>
@@ -371,6 +421,7 @@ def getCommandOutput(String input_command) {
         <graphdatapoint>
             <name>ping_loss_percent</name>
             <datapointname>ping_loss_percent</datapointname>
+            <originId></originId>
             <cf>1</cf>
         </graphdatapoint>
             </graphdatapoints>
@@ -399,12 +450,14 @@ def getCommandOutput(String input_command) {
             <timescale>1day</timescale>
             <base1024>false</base1024>
             <aggregated>false</aggregated>
+            <originId></originId>
             <datapoints>
         <overviewgraphdatapoint>
             <name>response_time</name>
             <datapointname>max_response_time</datapointname>
             <cf>1</cf>
             <aggregateMethod>sum</aggregateMethod>
+            <originId></originId>
         </overviewgraphdatapoint>
             </datapoints>
             <virtualdatapoints>
@@ -430,12 +483,14 @@ def getCommandOutput(String input_command) {
             <timescale>1day</timescale>
             <base1024>false</base1024>
             <aggregated>false</aggregated>
+            <originId></originId>
             <datapoints>
         <overviewgraphdatapoint>
             <name>response_time</name>
             <datapointname>min_response_time</datapointname>
             <cf>1</cf>
             <aggregateMethod>sum</aggregateMethod>
+            <originId></originId>
         </overviewgraphdatapoint>
             </datapoints>
             <virtualdatapoints>
@@ -461,12 +516,14 @@ def getCommandOutput(String input_command) {
             <timescale>1day</timescale>
             <base1024>false</base1024>
             <aggregated>false</aggregated>
+            <originId></originId>
             <datapoints>
         <overviewgraphdatapoint>
             <name>ping_loss_percent</name>
             <datapointname>ping_loss_percent</datapointname>
             <cf>1</cf>
             <aggregateMethod>sum</aggregateMethod>
+            <originId></originId>
         </overviewgraphdatapoint>
             </datapoints>
             <virtualdatapoints>
@@ -492,12 +549,14 @@ def getCommandOutput(String input_command) {
             <timescale>1day</timescale>
             <base1024>false</base1024>
             <aggregated>false</aggregated>
+            <originId></originId>
             <datapoints>
         <overviewgraphdatapoint>
             <name>avg_response_time</name>
             <datapointname>avg_response_time</datapointname>
             <cf>1</cf>
             <aggregateMethod>sum</aggregateMethod>
+            <originId></originId>
         </overviewgraphdatapoint>
             </datapoints>
             <virtualdatapoints>
@@ -523,12 +582,14 @@ def getCommandOutput(String input_command) {
             <timescale>1day</timescale>
             <base1024>false</base1024>
             <aggregated>false</aggregated>
+            <originId></originId>
             <datapoints>
         <overviewgraphdatapoint>
             <name>response_time</name>
             <datapointname>mdev_response_time</datapointname>
             <cf>1</cf>
             <aggregateMethod>sum</aggregateMethod>
+            <originId></originId>
         </overviewgraphdatapoint>
             </datapoints>
             <virtualdatapoints>
